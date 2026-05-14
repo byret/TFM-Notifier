@@ -16,7 +16,6 @@ def find_window():
 
             if title.strip() == "Transformice":
                 found.append(hwnd)
-                print(f"Found window: {title}")
 
     win32gui.EnumWindows(callback, None)
     return found[0] if found else None

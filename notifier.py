@@ -10,8 +10,8 @@ from window_capture import find_window
 from window_capture import screenshot_window
 
 def resource_path(relative_path):
-    if hasattr(sys, "_MEIPASS"):
-        base_path = sys._MEIPASS
+    if getattr(sys, "frozen", False):
+        base_path = os.path.dirname(sys.executable)
     else:
         base_path = os.path.dirname(os.path.abspath(__file__))
 
