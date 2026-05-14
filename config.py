@@ -19,3 +19,5 @@ EVENT_KEYWORDS = [
     "@2001",
     "@2000",
 ]
+
+TRADING_MAP_KEYWORD = "@2801"

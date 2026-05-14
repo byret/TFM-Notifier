@@ -14,11 +14,14 @@ class TransformiceNotifierApp:
         self.stop_button = None
         self.start_button = None
         self.status_label = None
+        self.trading_map_checkbox = None
+
         self.root = root
         self.root.title("TFM Notifier")
-        self.root.geometry("560x460")
+        self.root.geometry("560x500")
         self.root.resizable(False, False)
 
+        self.notify_trading_map_var = tk.BooleanVar(value=False)
         self.status_var = tk.StringVar(value="Ready to monitor")
 
         self.notifier = EventNotifier(
@@ -71,9 +74,23 @@ class TransformiceNotifierApp:
         )
 
         style.configure(
+            "CardText.TLabel",
+            background="#FFFFFF",
+            foreground="#374151",
+            font=("Segoe UI", 9)
+        )
+
+        style.configure(
             "TButton",
             font=("Segoe UI", 10),
             padding=8
+        )
+
+        style.configure(
+            "TCheckbutton",
+            background="#FFFFFF",
+            foreground="#374151",
+            font=("Segoe UI", 9)
         )
 
         main_frame = ttk.Frame(self.root, padding=20)
@@ -92,7 +109,25 @@ class TransformiceNotifierApp:
                  "Transformice can stay behind other windows, but the game window must not be minimized.\n",
             style="Subtitle.TLabel"
         )
-        subtitle_label.pack(anchor="w", pady=(4, 18))
+        subtitle_label.pack(anchor="w", pady=(4, 16))
+
+        settings_frame = ttk.Frame(main_frame, padding=14, style="Card.TFrame")
+        settings_frame.pack(fill="x", pady=(0, 16))
+
+        settings_label = ttk.Label(
+            settings_frame,
+            text="Notification options",
+            style="CardText.TLabel",
+            font=("Segoe UI", 10, "bold")
+        )
+        settings_label.pack(anchor="w", pady=(0, 8))
+
+        self.trading_map_checkbox = ttk.Checkbutton(
+            settings_frame,
+            text="Notify about trading map",
+            variable=self.notify_trading_map_var
+        )
+        self.trading_map_checkbox.pack(anchor="w")
 
         status_frame = ttk.Frame(main_frame, padding=14, style="Card.TFrame")
         status_frame.pack(fill="x", pady=(0, 16))
@@ -174,6 +209,10 @@ class TransformiceNotifierApp:
         self.status_var.set(message)
 
     def start_search(self):
+        self.notifier.set_notify_trading_map(
+            self.notify_trading_map_var.get()
+        )
+
         self.worker_thread = threading.Thread(
             target=self.notifier.start,
             daemon=True
@@ -182,15 +221,22 @@ class TransformiceNotifierApp:
 
         self.start_button.config(state="disabled")
         self.stop_button.config(state="normal")
+        self.trading_map_checkbox.config(state="disabled")
 
         self.set_status("Monitoring events...")
         self.log("Started event monitoring")
+
+        if self.notify_trading_map_var.get():
+            self.log("Trading map notifications enabled")
+        else:
+            self.log("Trading map notifications disabled")
 
     def stop_search(self):
         self.notifier.stop()
 
         self.start_button.config(state="normal")
         self.stop_button.config(state="disabled")
+        self.trading_map_checkbox.config(state="normal")
 
         self.set_status("Stopped")
         self.log("Stopping notifier...")
