@@ -5,7 +5,8 @@ from PIL import Image
 
 
 def find_window():
-    found = []
+    found_tfm = []
+    found_flash = []
 
     def callback(hwnd, _):
         if win32gui.IsWindowVisible(hwnd):
@@ -14,11 +15,22 @@ def find_window():
             if title == "TFM Notifier":
                 return
 
-            if title.strip() == "Transformice":
-                found.append(hwnd)
+            clean_title = title.strip()
+
+            if clean_title == "Transformice":
+                found_tfm.append(hwnd)
+            # Usually only the version at the end of the name differs
+            elif clean_title.startswith("Adobe Flash Player"):
+                found_flash.append(hwnd)
 
     win32gui.EnumWindows(callback, None)
-    return found[0] if found else None
+
+    if found_tfm:
+        return found_tfm[0]
+    elif found_flash:
+        return found_flash[0]
+
+    return None
 
 
 def screenshot_window(hwnd):
